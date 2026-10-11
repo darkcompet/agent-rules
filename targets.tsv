@@ -1,0 +1,11 @@
+# target|framework|generator path
+ncp/ops|ops-runbook|scripts/gen-agent-rules.sh
+ncp/api|dotnet|scripts/gen-agent-rules.sh
+ncp/web|react|scripts/gen-agent-rules.sh
+monitor|common|scripts/gen-agent-rules.sh
+monitor/api|dotnet|scripts/gen-agent-rules.sh
+monitor/web|react|scripts/gen-agent-rules.sh
+monitor/agent|worker|scripts/gen-agent-rules.sh
+orbit/api|dotnet|scripts/gen-agent-rules.sh
+orbit/api/web|react|scripts/gen-agent-rules.sh
+orbit/agent|worker|scripts/gen-agent-rules.sh
