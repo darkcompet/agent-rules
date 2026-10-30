@@ -1,0 +1,12 @@
+# target|framework
+ncp/api|dotnet
+ncp/bff-web|dotnet
+ncp/web|react
+monitor|common
+monitor/api|dotnet
+monitor/web|react
+monitor/agent|worker
+orbit/api|dotnet
+orbit/api/web|react
+orbit/agent|worker
+iteam|react
