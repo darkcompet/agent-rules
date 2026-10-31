@@ -1,155 +1,163 @@
 # Agent rules dùng chung
 
-Mục tiêu: thay đổi nhỏ, chính xác, được kiểm chứng. Ưu tiên thay đổi nhỏ nhất
-đáp ứng yêu cầu.
+Mục tiêu: thay đổi nhỏ nhất đáp ứng yêu cầu, chính xác và được kiểm chứng.
 
 ## Thứ tự ưu tiên
 
+Thứ tự dưới đây áp dụng giữa các chỉ dẫn của task owner và repository; không
+thay thế instruction hierarchy của agent/runtime.
+
 1. Chỉ dẫn trực tiếp từ task owner.
-2. `.agent-rules/project.md` (rule riêng của project).
-3. `.agent-rules/framework.md`, sau đó là file này.
+2. `.agent-rules/project.md`.
+3. `.agent-rules/framework.md`.
+4. Rule dùng chung trong `.agent-rules/base.md`.
 
-Nếu các rule mâu thuẫn, làm theo rule có ưu tiên cao hơn và nêu rõ trong báo cáo.
+Chỉ phần mâu thuẫn nhường cho chỉ dẫn ưu tiên cao hơn; báo rõ mâu thuẫn.
+Mệnh lệnh trực tiếp và “phải/không được/chỉ” là bắt buộc; “ưu tiên/tránh” là
+preference theo contract/convention. Yêu cầu làm task không tự miễn approval
+gate; owner phải chỉ rõ ngoại lệ và phạm vi.
 
-## Ngôn ngữ trả lời
+## Ngôn ngữ
 
-- Mọi câu trả lời, giải thích, câu hỏi và báo cáo của AI phải viết bằng tiếng Việt.
-- Giữ nguyên tên file, identifier, lệnh, code và thuật ngữ kỹ thuật bằng ngôn ngữ gốc khi cần.
+- Trả lời, giải thích, câu hỏi và báo cáo cho task owner bằng tiếng Việt.
+- Giữ nguyên tên file, identifier, lệnh, code và thuật ngữ IT theo ngôn ngữ gốc.
 
-## An toàn
+## An toàn và file được quản lý
 
 - Không commit, push hoặc mở PR nếu chưa được yêu cầu.
-- Không thực hiện thao tác phá hủy (xóa file, `reset --hard`, force push, viết lại
-  lịch sử, xóa dữ liệu) nếu chưa được duyệt rõ ràng.
-- Không hoàn tác hoặc ghi đè thay đổi do người khác tạo. Trước tiên, kiểm tra
-  `git status`.
-- Không in, ghi log hoặc commit secret hay thông tin xác thực.
-
-## File được tạo
-
-- Không sửa thủ công `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`. Các file này được tạo
-  tự động.
-- Trong target repo, `.agent-rules/base.md` và `.agent-rules/framework.md` là
-  bản sao được sync từ `agent-rules/shared/base.md` và
-  `agent-rules/shared/frameworks/<framework>.md`. Không sửa các file này. Đặt
-  rule riêng của project trong `.agent-rules/project.md`, sau đó chạy
-  `./scripts/gen-agent-rules.py`.
+- Phải được duyệt rõ trước khi xóa file/dữ liệu, `reset --hard`, force push hoặc
+  viết lại lịch sử. Ngoại lệ: artifact tạm agent tạo, code/file source trở nên
+  không dùng do chính task sau khi kiểm tra references. Ngoại lệ không gồm dữ
+  liệu người dùng, thay đổi của người khác hoặc code/file không liên quan.
+- Kiểm tra `git status` trước khi sửa; không ghi đè hoặc hoàn tác thay đổi của
+  người khác. Không in, log hoặc commit secret hay thông tin xác thực.
+- Không sửa thủ công `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.agent-rules/base.md`
+  hoặc `.agent-rules/framework.md`: chúng được tạo/sync tự động. Đặt rule riêng
+  trong `.agent-rules/project.md`, rồi chạy `./scripts/gen-agent-rules.py`.
+- Sau khi đổi rule riêng, chạy `python3 scripts/gen-agent-rules.py --check`.
+  Không tạo `AGENTS.override.md` để bổ sung rules: Codex chọn nó thay cho
+  `AGENTS.md` cùng thư mục. Dùng `.agent-rules/project.md` và generator.
 
 ## Trước khi sửa
 
-- Đọc các rule áp dụng và tập file liên quan nhỏ nhất.
-- Kiểm tra `git status` và diff liên quan.
-- Xác định acceptance criteria và check hẹp nhất.
-- Chỉ hỏi khi điểm chưa rõ làm thay đổi behavior. Nếu không, nêu giả định rồi tiếp tục.
-- Không tự suy đoán thông tin về repository (path, command, API). Phải kiểm chứng.
+- Đọc rule áp dụng và tập file nhỏ nhất đủ hiểu thay đổi. Đọc spec khi task
+  liên quan contract; đọc architecture khi task chạm boundary/dependency.
+  Xác định acceptance criteria và check hẹp nhất.
+- Kiểm chứng path, command, API và các giả định về repository; không tự suy đoán.
+- Chỉ hỏi khi điểm chưa rõ có thể đổi behavior hoặc approval gate yêu cầu;
+  nếu không, nêu giả định rồi tiếp tục.
 
-## Spec trước khi triển khai
+## Spec và approval
 
-Áp dụng cho thay đổi về behavior, scope, API, data, security hoặc compatibility.
+Spec bắt buộc cho thay đổi behavior, scope, API, data, security hoặc compatibility.
+Ngoại lệ: typo; docs không đổi contract đã duyệt; formatting/refactor không đổi
+behavior; test cho behavior hiện có.
 
-Ngoại lệ: sửa typo, chỉ sửa docs mà không đổi contract đã duyệt, formatting,
-refactor thuần túy không đổi behavior và test cho behavior hiện có.
+Với thay đổi cần spec:
 
-Với thay đổi không thuộc ngoại lệ:
+1. Đọc `docs/specs/README.md` và spec liên quan; dùng quy chuẩn đó cho format,
+   scope và trạng thái. Đọc `docs/README.md` khi tạo task document ngoài spec.
+2. Nếu requirement đã `Approved` quy định behavior mong đợi, được implement hoặc
+   sửa code để conform mà không xin duyệt lại, kể cả file spec đang `Draft` vì
+   proposal khác. Không implement proposal chưa duyệt.
+3. Nếu thêm hoặc đổi contract, viết proposal cụ thể theo quy chuẩn spec và chờ
+   owner duyệt phần bị ảnh hưởng. Giữ nguyên contract đã duyệt trong khi chờ.
+4. Approval xác định proposal/requirement và nội dung owner duyệt qua hội thoại
+   hoặc PR/commit. “Implement X” chưa có proposal cụ thể không tự là approval.
+   Agent chỉ ghi nhận quyết định đã có, cập nhật trạng thái và ngoại lệ owner
+   chỉ rõ; không tự duyệt hoặc hỏi lại approval khi scope không đổi.
+5. Thiếu quy chuẩn spec, contract mong đợi hoặc người duyệt thì dừng implementation
+   phần bị ảnh hưởng và báo điều còn thiếu. Được tiếp tục điều tra read-only,
+   soạn proposal và làm phần độc lập đã được phép.
 
-1. Đọc `docs/specs/README.md`, `docs/README.md` và các spec liên quan đến thay
-   đổi. Spec là một scope contract, không phải một feature hay task; một spec có
-   thể chứa nhiều feature liên quan. Cập nhật feature hiện có hoặc thêm feature
-   trong spec hiện tại khi cùng outcome/workflow/lifecycle và cần review/duyệt
-   cùng nhau. Chỉ tạo spec mới cho outcome có contract riêng, có thể review,
-   duyệt, implement và verify độc lập. Dùng `Feature list` và requirement detail
-   theo format trong `docs/specs/README.md`; ghi thay đổi contract đã duyệt vào
-   `Proposed changes`.
-2. Spec phải mô tả outcome, scope, workflow khi áp dụng, requirements,
-   acceptance criteria và cách kiểm chứng. Thêm design/implementation,
-   delivery/rollout, dependency hoặc risk detail khi task cần.
-3. Spec mới hoặc có thay đổi phải bắt đầu ở trạng thái `Draft`. Trình task owner
-   và chờ duyệt. Chỉ owner được đặt trạng thái `Approved`. Không tự duyệt.
-4. Chỉ triển khai nội dung đã được spec `Approved` quy định.
-5. Nếu code không khớp spec đã duyệt, sửa code để conform. Nếu contract chưa rõ
-   hoặc cần thay đổi, dừng phần việc bị ảnh hưởng, ghi đề xuất trong spec và chờ
-   duyệt trước khi triển khai behavior thay đổi.
-6. Nếu thiếu `docs/specs/README.md`, dừng và báo cần sync quy chuẩn spec trước.
-7. Nếu không có người duyệt (chạy non-interactive), ghi spec `Draft`, không triển
-   khai và báo lại.
+## Sửa issue
 
-## Không dùng workaround để sửa issue
+- Trước khi sửa, đọc approved spec và architecture liên quan rồi truy nguyên root cause;
+  xác định lỗi ở implementation hay contract/spec.
+- Sửa root cause tại source of truth và boundary sở hữu, conform approved spec.
+  Không workaround để che symptom, né contract, ép test pass hoặc trì hoãn sửa đúng.
+- Không thêm special case, fallback, silent conversion, duplicate path hay error
+  suppression nếu chưa được spec yêu cầu.
+- Spec xác định behavior, không cần thuật toán/implementation detail trừ khi là
+  constraint đã duyệt. Thiếu chi tiết implementation không cần approval mới.
+- Nếu behavior mong đợi thiếu, mâu thuẫn hoặc cần đổi, áp dụng approval gate ở
+  trên; không thêm workaround tạm. Nếu chưa rõ root cause, tiếp tục điều tra;
+  khi không thể lấy thêm evidence, dừng sửa code và báo điều chưa rõ.
 
-- Trước khi viết code để sửa issue, đọc lại approved spec và architecture liên
-  quan, rồi truy nguyên root cause. Xác định lỗi nằm ở implementation hay
-  contract/spec.
-- Bắt buộc sửa đúng root cause tại source of truth và boundary sở hữu behavior,
-  conform với approved spec. Không viết workaround để che symptom, né contract,
-  ép test pass hoặc trì hoãn việc tìm cách sửa đúng.
-- Không thêm special case, fallback, silent conversion, duplicate code path hoặc
-  error suppression chỉ để làm issue biến mất khi chưa chứng minh đó là behavior
-  được spec yêu cầu.
-- Nếu spec chưa quy định cách sửa đúng, mâu thuẫn với requirement khác hoặc cần
-  đổi behavior, dừng phần code bị ảnh hưởng; ghi đề xuất trong spec ở trạng thái
-  `Draft` và chờ task owner duyệt. Không thêm workaround tạm trong lúc chờ.
-- Nếu chưa xác định được root cause hoặc cách sửa đúng, tiếp tục điều tra; nếu
-  vẫn chưa đủ căn cứ, dừng phần code bị ảnh hưởng và báo evidence cùng thông tin
-  còn thiếu thay vì đoán hoặc vá tạm.
+## Phạm vi và style của target project
 
-## Giới hạn phạm vi thay đổi
-
-- Giữ nguyên pattern, workflow và formatting hiện có.
-- Không thêm feature, abstraction, config hoặc dependency mang tính suy đoán.
-- Không refactor, đổi tên, format hoặc cleanup phần không liên quan.
-- Chỉ xóa code không còn dùng do chính thay đổi này tạo ra.
+- Trước khi sửa code, đọc ví dụ cùng vai trò trong boundary; xem thêm nếu pattern
+  chưa rõ. Theo convention về naming, structure, declaration order, comments/docs,
+  logging, validation, error handling và tests. Precedent bổ sung, không miễn rule.
+- Nếu precedent mâu thuẫn, đối chiếu spec, architecture và repo config; vẫn mơ hồ
+  thì báo rõ. Nếu convention cần cải thiện, báo evidence, tác động và đề xuất;
+  không tự mở rộng task để đổi convention.
+- Giữ nguyên pattern, workflow, formatting hiện có. Không thêm feature,
+  abstraction, config, dependency suy đoán; không refactor, rename, format,
+  cleanup phần không liên quan. Chỉ xóa code không còn dùng do thay đổi này tạo ra.
 
 ## Boundary và architecture
 
-- Tuân theo architecture đã được tài liệu hóa và boundary hiện có của repository; không tự áp đặt một pattern khác. Trước khi thêm code, xác định module, feature hoặc layer nào sở hữu behavior đó.
-- Giữ file, class/type và function tập trung vào một trách nhiệm rõ ràng. Đặt business rule ở owner của nó, orchestration ở workflow/use case, và I/O hoặc tương tác hệ thống bên ngoài tại boundary phù hợp với architecture hiện có.
-- Giữ dependency theo hướng mà architecture quy định. Không bypass module/layer boundary, tạo dependency cycle hoặc gọi implementation nội bộ của module khác khi đã có contract/port công khai.
-- Ưu tiên giữ file mã nguồn do người viết duy trì ở khoảng 300 dòng. File dài
-  hơn vẫn phù hợp khi có lý do rõ ràng và nội dung cohesive, như một bảng
-  constants lớn cho cùng một target. Chỉ tách file khi việc đó tạo boundary
-  trách nhiệm tốt hơn; không chia máy móc theo số dòng hoặc refactor file legacy
-  không liên quan chỉ để đạt ngưỡng.
-- Giữ function tập trung vào một operation có ý nghĩa. Tách bước riêng thành helper khi nó có trách nhiệm hoặc rule riêng, không chỉ để giảm số dòng.
+- Theo architecture và boundary đã tài liệu hóa; xác định module/feature/layer sở
+  hữu behavior. Không áp pattern khác, bypass boundary, tạo dependency cycle hoặc
+  gọi implementation nội bộ module khác khi đã có public contract/port.
+- Giữ mỗi file, type và function tập trung vào trách nhiệm rõ ràng. Business rule
+  ở owner; orchestration ở workflow/use case; I/O ở boundary phù hợp.
+- Ưu tiên file source khoảng 300 dòng; file dài được phép nếu cohesive, có lý do.
+  Chỉ tách file/helper khi trách nhiệm hoặc rule riêng cần boundary; không chia
+  máy móc hay refactor legacy chỉ vì số dòng. Function tập trung một operation.
 
-## Đặt tên và comment
+## Naming và comments
 
-- Dùng từ IT phổ biến, đơn giản: `Create`, `Ensure`, `Update`, `Load`, `Save`.
-  Không dùng: `Instantiate`, `Materialize`, `Persist`, `Hydrate`.
-- Comment trong code ngắn, dùng English cơ bản; giải thích lý do, không diễn giải
-  code. Quy ước ngôn ngữ của spec chỉ được định nghĩa trong
-  `docs/specs/README.md`.
-- Viết comment cho business rule, quyết định không hiển nhiên, giới hạn,
-  workaround và xử lý lỗi.
-- Không comment phần code đã rõ.
-- Với function dài (trên khoảng 30 dòng), thêm comment ngắn nêu mục đích trước mỗi
-  giai đoạn riêng biệt.
-- Formatter/linter áp dụng quy tắc về độ dài dòng, dấu ngoặc và bố cục. Hãy chạy
-  công cụ đó, không tự đếm.
+- Ưu tiên từ IT phổ biến, đơn giản như `Create`, `Ensure`, `Update`, `Load`, `Save`;
+  tránh `Instantiate`, `Materialize`, `Persist`, `Hydrate`.
+  Giữ tên do framework/public API quy định và convention của boundary hiện có;
+  không rename code ngoài task chỉ để theo preference này.
+- Comments/XML docs trong code dùng English cơ bản, ngắn, giải thích lý do thay vì
+  diễn giải code. Comment business rules, quyết định/constraint không hiển nhiên,
+  thứ tự, invariant, workaround và error handling; không comment code đã rõ.
+- Với function có nhiều giai đoạn mà tên/code chưa thể hiện mục đích hoặc lý do
+  thứ tự, thêm comment ngắn trước giai đoạn đó; số dòng không quyết định comment.
+  Ngôn ngữ của spec theo `docs/specs/README.md`. Dùng formatter/linter của repo
+  cho line length, braces và layout; không tự đếm.
 
-## Contract của input
+## Input và configuration
 
-- Xem input từ user và bên ngoài là contract. Validate tại boundary. Từ chối
-  input không hợp lệ trước mọi side effect.
-- Không âm thầm normalize, suy luận, đặt default, fallback hoặc đổi cấu trúc input
-  hay output chỉ để workflow chạy qua.
-- Nếu input không khớp format chuẩn, giải thích format và yêu cầu input đã chỉnh
-  hoặc approval cho compatibility. Chỉ thêm compatibility khi được yêu cầu.
+### Hardcoding — bắt buộc
 
-## Cấu hình
+- Không tự thêm/đổi hardcode trong code, script hoặc template: business value,
+  ID, URL/path, environment, limit, timeout, retry, default hay mapping cố định
+  điều khiển behavior. Phải dùng source of truth của owner qua config/parameter/
+  contract, không rải bản sao. Đưa literal vào `const` không miễn approval.
+- Nếu cần hardcode, phải hỏi owner trước khi implement: nêu giá trị, vị trí, lý
+  do, phương án không hardcode và tác động khi đổi. Chỉ làm khi owner duyệt rõ
+  giá trị và phạm vi hardcode; approval behavior chung chưa đủ. Approval đó đã
+  có thì ghi nguồn, không hỏi lại. Chưa được duyệt hoặc không hỏi được thì dừng
+  phần phụ thuộc và báo điều còn chờ.
+- Giá trị được duyệt phải định nghĩa có tên tại một nơi thuộc boundary sở hữu;
+  nơi dùng tham chiếu lại. Hardcode cũ không cho phép thêm bản sao mới.
+- Literal cấu trúc (`0` khởi tạo bộ đếm, chuỗi rỗng) và dữ liệu test giả lập không
+  quyết định behavior production không cần approval. Ngoại lệ không gồm business
+  value/default hay magic number; chưa rõ thì hỏi owner. Không tạo config hoặc
+  abstraction chỉ để thay literal cấu trúc.
 
-- Mỗi setting có một owner và một source of truth. Truyền giá trị đó đến nơi cần
-  dùng, không tạo bản sao.
-- Behavior của product nằm trong app config. Vị trí environment/host nằm trong
-  deployment config. Credential nằm trong secret store.
-- Default nằm trong config contract đã được tài liệu hóa của owner. Override dùng
-  biến có tên. Không đặt literal ẩn trong script dùng chung.
-- Validate config đã resolve đầy đủ trước side effect. Báo lỗi rõ khi thiếu hoặc
-  xung đột giá trị.
-- Với setting deployment dùng chung, kiểm tra mọi environment được hỗ trợ và chỉ
-  giữ khác biệt đã được tài liệu hóa.
+### Runtime input và nguồn cấu hình
+
+- Runtime input (API, CLI, file, event, UI): validate tại boundary trước side
+  effect nghiệp vụ. Chỉ dùng normalization/default/fallback theo contract;
+  từ chối input còn sai bằng error theo contract. Không tự coercion hay đổi
+  input/output để workflow chạy qua; compatibility mới cần approval. Schema
+  runtime không áp dụng cho lời nhắn trong chat; xem “Trước khi sửa” khi task mơ hồ.
+- Mỗi setting có một owner và source of truth; truyền giá trị, không tạo bản sao.
+  Product behavior ở app config, host/environment ở deployment config, credentials
+  ở secret store. Default phải thuộc config contract đã tài liệu hóa; override dùng
+  biến có tên, không hardcode literal ẩn trong script dùng chung.
+- Resolve và validate config trước side effect; báo thiếu hoặc xung đột. Với
+  deployment settings dùng chung, kiểm tra mọi environment và giữ khác biệt đã ghi nhận.
 
 ## Kiểm chứng và báo cáo
 
-- Chạy check liên quan hẹp nhất. Nếu không có check hoặc không thể chạy, phải nêu rõ.
-- Không làm yếu check để đạt kết quả pass. Không báo check đã pass nếu chưa chạy.
-- Báo cáo cuối: file đã đổi, check và kết quả cụ thể, link đến spec, sai khác đã được duyệt và rủi ro chưa giải quyết.
-- Câu trả lời và review chỉ đọc không cần spec.
+- Chạy check liên quan hẹp nhất; nếu không có hoặc không chạy được, nêu rõ. Không
+  làm yếu check hoặc báo pass khi chưa chạy.
+- Báo cáo cuối nêu file đổi, check và kết quả, link đến spec liên quan, sai khác
+  đã duyệt và risks còn lại. Câu trả lời hoặc review chỉ đọc không cần spec.

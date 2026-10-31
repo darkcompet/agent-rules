@@ -88,7 +88,7 @@ Status: Draft · Audited: Not yet
 
 **Tiêu đề, `Status`, `Audited`**
 - `Status: Approved` khi mọi feature chưa `Removed` đều có contract `Approved`, không còn dòng trong `Proposed changes`, không còn `[Gating]`; trường hợp khác là `Draft`.
-- `Audited: <ngày> by <người duyệt>`. Chỉ người quyết định duyệt; AI không tự đặt contract thành `Approved`. Hồ sơ duyệt là PR/commit.
+- `Audited: <ngày> by <người duyệt>`. Chỉ task owner quyết định duyệt. Approval phải xác định proposal/requirement và nội dung được duyệt trong hội thoại hoặc PR/commit; yêu cầu chung khi chưa có proposal cụ thể không tự là approval. AI được ghi lại quyết định đã có và cập nhật trạng thái, không tự duyệt hoặc hỏi lại approval khi scope không đổi. Ghi nguồn xác nhận và người duyệt trong hồ sơ task hoặc PR/commit khi có; không tự tạo commit/PR để ghi approval.
 
 **Scope**
 - Tối đa 2 câu, nêu rõ phần thuộc và không thuộc scope.
@@ -160,15 +160,15 @@ Status: Draft · Audited: Not yet
 - Spec là contract theo scope, không phải task log: không dùng ngày, ID hoặc số thứ tự trong tên file; không đặt tên file `README`. `docs/specs/README.md` chứa quy chuẩn dùng chung, không phải spec hay catalog của một project.
 - Catalog theo project nằm ở `docs/specs/catalog.md` để `sync.py` có thể cập nhật `README.md` mà không ghi đè danh mục riêng. Catalog liệt kê domain, mục đích của domain và link tới từng spec; `catalog.md` không phải contract spec.
 - Khi task tạo hoặc tổ chức spec, tạo `docs/specs/catalog.md` nếu chưa có; cập nhật catalog và mọi link tới file đã thêm, chuyển hoặc đổi tên. Dùng path từ repository root trong tham chiếu, ví dụ `docs/specs/terminal/split-panes.md`.
-- Trong lần đầu xử lý task có thao tác với spec sau khi nhận quy chuẩn này, nếu còn spec phẳng tại `docs/specs/*.md`, phân loại toàn bộ spec hiện có theo subsystem sở hữu contract rồi chuyển chúng vào `docs/specs/<domain>/` trước khi tạo hoặc sửa spec. Giữ nguyên contract, requirement ID, prefix và trạng thái; chỉ sửa path trong link/catalog. Với file có ngày hoặc tên không còn mô tả scope, đổi sang scope-slug ổn định và cập nhật mọi tham chiếu. Không đưa `README.md` hoặc `catalog.md` vào domain folder.
+- Spec mới dùng cấu trúc domain ở trên. Khi sửa spec legacy, giữ path hiện tại trừ khi task yêu cầu di chuyển. Không tổ chức lại spec không liên quan. Migration toàn bộ spec là task riêng; khi thực hiện, giữ nguyên contract, ID và trạng thái, đồng thời cập nhật catalog và mọi link bị ảnh hưởng. Không đưa `README.md` hoặc `catalog.md` vào domain folder.
 - Prefix 3-4 chữ in hoa do người quyết định chọn, mặc định là ba chữ đầu của `<scope-slug>` sau khi bỏ dấu gạch ngang (`incremental-build` → `INC`). Prefix phải duy nhất trên toàn bộ spec; nếu trùng, người quyết định chọn prefix khác. Sau khi đã dùng trong ID, không đổi prefix.
 - ID: yêu cầu `INC-001`, check `INC-001-C1`. ID không đổi, không tái dùng, kể cả dòng `Removed`.
 
 ## Thay đổi và duyệt
 
-1. Sửa code để conform yêu cầu `Approved` (refactor, typo, bugfix): làm luôn. Contract thiếu hoặc mơ hồ thì dừng, ghi đề xuất vào `Proposed changes`, không tự diễn giải.
+1. Sửa code để conform yêu cầu `Approved` (refactor, typo, bugfix): làm luôn. Behavior mong đợi thiếu hoặc mơ hồ thì dừng implementation phần bị ảnh hưởng và soạn proposal. Contract không cần mô tả thuật toán hoặc implementation detail trừ khi đó là constraint đã duyệt. Được tiếp tục điều tra read-only và phần độc lập đã được phép.
 2. Thêm, xóa, đổi hành vi hoặc giá trị: feature mới được định nghĩa trong `Features` với requirement ID mới, trạng thái `Proposed · Todo`. Với feature `Approved`, **giữ nguyên contract hiện tại** và ghi đề xuất vào `Proposed changes`. Yêu cầu `Proposed` cần giá trị khác thì tạo ID khác. Chờ duyệt trước khi implement thay đổi contract; chỉ implement phần `Approved`.
-3. Sau khi duyệt: cập nhật feature và trạng thái requirement; `Remove` chuyển thành `Removed`; xóa proposal tương ứng; cập nhật `Audited`; nêu người duyệt trong PR/commit.
+3. Sau khi owner duyệt nội dung cụ thể: agent được ghi lại quyết định và cập nhật feature và trạng thái requirement; `Remove` chuyển thành `Removed`; xóa proposal tương ứng; cập nhật `Audited`; nêu người duyệt và nguồn approval trong hồ sơ task hoặc PR/commit khi có.
 4. Bị từ chối: ghi lý do vào PR/commit, xóa dòng khỏi `Proposed changes`; yêu cầu `Proposed` bị từ chối thì chuyển `Removed`.
 5. AI agent phải đọc spec liên quan và xác định feature/ID bị ảnh hưởng trước khi đề xuất. Proposal nêu thay đổi cụ thể, lý do và ảnh hưởng tới scope, contract hoặc check. Nếu có nhiều cách hiểu làm thay đổi behavior, scope, acceptance criteria, API/data hoặc implementation boundary, agent phải hỏi task owner; không tự chọn rồi coi là contract. Nếu chưa thể hỏi, ghi câu hỏi vào `Open questions` và đánh `[Gating]` nếu câu trả lời ảnh hưởng contract.
 6. PR/commit nêu ID đã đổi và code/test/runbook cần xem lại.
@@ -177,8 +177,8 @@ Status: Draft · Audited: Not yet
 
 Trước khi trả, kiểm và báo kết quả:
 - Đã thay nội dung minh họa bằng nội dung task; không còn ID, feature hoặc giá trị ví dụ.
-- Path file khớp `docs/specs/<domain>/<scope-slug>.md`; không còn spec phẳng ở `docs/specs/*.md` ngoài `README.md` và `catalog.md`. Prefix không trùng spec khác; kiểm tra trên các feature heading dạng `^### <PREFIX>-`.
-- Mọi spec nằm trong đúng một folder domain; `docs/specs/catalog.md` liệt kê mọi domain và spec; mọi link trỏ tới path hiện có.
+- Spec mới hoặc được di chuyển trong task có path khớp `docs/specs/<domain>/<scope-slug>.md`; spec legacy ngoài scope không phải di chuyển. Prefix không trùng spec khác; kiểm tra trên các feature heading dạng `^### <PREFIX>-`.
+- Catalog có link tới spec thêm hoặc di chuyển trong task; link bị ảnh hưởng trỏ tới path hiện có. Chỉ kiểm tra và tổ chức lại toàn bộ catalog/spec khi task yêu cầu migration hoặc audit toàn bộ.
 - `Overview` một câu, `Scope` tối đa 2 câu; đầu file giúp người đọc nhận ra mục tiêu và outcome nhanh.
 - Mỗi feature có đúng một ID ở đầu heading, metadata đầy đủ và contract được định nghĩa đúng một lần trong `Features`.
 - Các bước ngắn, có actor rõ, dùng ngôn ngữ nghiệp vụ; nhánh/lặp viết tự nhiên, không dùng pseudocode.

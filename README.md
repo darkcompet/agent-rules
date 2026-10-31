@@ -116,6 +116,19 @@ py -3 sync.py
 
 Review the printed target list and any errors after each run.
 
+Check that canonical copies, shared documentation, and all three generated
+entrypoints are current without changing any files:
+
+```sh
+python3 sync.py --check
+```
+
+Use `py -3 sync.py --check` on Windows. A nonzero exit code means a target is
+missing, stale, or blocked by a nonempty root `AGENTS.override.md`. Sync does not
+remove overrides: merge any rules you need into `.agent-rules/project.md`, then
+remove the override yourself. Codex selects the override instead of `AGENTS.md`
+in the same directory; describing it as an extension does not merge the files.
+
 ## Updating project-specific rules
 
 In a target project, put project-only instructions in `.agent-rules/project.md`. Then regenerate that project's agent files with:
@@ -129,6 +142,19 @@ On Windows, use:
 ```powershell
 py -3 scripts/gen-agent-rules.py
 ```
+
+Run `python3 scripts/gen-agent-rules.py --check` (Windows: `py -3`) to check the
+three entrypoints against the project's local sources without writing files.
+This local check does not compare shared copies with the central repository;
+use `sync.py --check` there for that. Generated files label each source section.
+
+After syncing, verify instruction loading in a fresh agent session at the
+working directory you actually use. Check nested instructions and global
+overrides too; the scripts only detect overrides at configured target roots.
+Codex's default project instruction budget is 32 KiB across the discovered
+chain. The generator warns when a single generated file reaches that size;
+smaller files can still exceed the combined budget in nested projects. See the
+[official discovery rules](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 
 Do not edit `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.agent-rules/base.md`, or `.agent-rules/framework.md` directly; the generator or next sync will replace those files.
 
@@ -151,3 +177,17 @@ $env:WORKSPACE_PROJECTS_ROOT = "C:\path\to\your-projects-root"
 ## Contributing shared rules
 
 Edit the canonical files in `shared/` or `templates/` in this repository, then run the sync command from step 3 to publish the changes to your configured targets. Commit changes to shared rules and templates as usual; do not commit `local/targets.tsv`.
+
+Write rules with an explicit trigger, required action, exceptions, and behavior
+when blocked. Distinguish mandatory constraints from preferences. Keep universal
+constraints in `base.md`, stack rules in framework files, and project contracts
+in project rules/specs. Put detailed procedures in referenced documents and state
+when to read them. Use formatter, linter, tests, or CI for mechanically checkable
+requirements; prose alone cannot guarantee compliance.
+
+When changing behavior guidance, compare fresh agent sessions on representative
+tasks: a typo fix, a bug covered by an approved requirement, a new behavior
+without approval, invalid runtime input, and removal of newly unused source.
+Inspect actual actions and diffs against the applicable rules, not just the
+agent's statement that it read them. Automated sync checks verify delivery of
+instructions, not model compliance.

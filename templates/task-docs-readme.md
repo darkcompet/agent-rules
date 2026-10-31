@@ -8,8 +8,9 @@
 
 ## Quy ước tên task file
 
-- Tên mọi task document ngoài `docs/specs/` phải bắt đầu bằng ngày tạo theo định dạng
-  `yyyy-mm-dd-`, ví dụ `2026-10-24-improve-alerts.md`; áp dụng cả với task cũ.
+- Task document mới ngoài `docs/specs/` dùng tiền tố ngày tạo `yyyy-mm-dd-`,
+  ví dụ `2026-10-24-improve-alerts.md`. Giữ tên task document cũ khi tiếp tục task;
+  chỉ migrate tên khi task yêu cầu và cập nhật các liên kết bị ảnh hưởng.
 - Giữ các quy ước bổ sung về loại task hoặc số thứ tự được ghi trong README task
   của project.
 - README và file index không cần tiền tố ngày.

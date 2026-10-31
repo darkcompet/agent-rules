@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -61,40 +62,42 @@ def read_targets() -> list[tuple[str, str]]:
 	return targets
 
 
-def sync_task_docs_readme(target_dir: Path) -> None:
-	"""Replace the managed task naming section and preserve local index content."""
-	readme = target_dir / "docs" / "README.md"
-	readme.parent.mkdir(parents=True, exist_ok=True)
-	if not readme.is_file():
-		# Create the documentation index when the target does not have one.
-		readme.write_text("# Documentation\n", encoding="utf-8")
-
-	content = readme.read_text(encoding="utf-8")
+def render_task_docs_readme(readme: Path) -> str:
+	"""Validate managed boundaries before any target files are changed."""
+	content = readme.read_text(encoding="utf-8") if readme.is_file() else "# Documentation\n"
 	lines = content.splitlines()
-	start_count = sum(line == START_MARKER for line in lines)
-	end_count = sum(line == END_MARKER for line in lines)
-	if start_count != end_count:
-		# Preserve local content when the managed block markers are malformed.
-		raise ValueError(f"shared task docs markers are incomplete: {readme}")
 
 	kept_lines: list[str] = []
 	inside_block = False
 	# Remove all prior managed blocks while keeping lines outside them.
 	for line in lines:
 		if line == START_MARKER:
+			if inside_block:
+				raise ValueError(f"nested shared task docs markers: {readme}")
 			inside_block = True
 			continue
 		if line == END_MARKER:
+			if not inside_block:
+				raise ValueError(f"unmatched shared task docs end marker: {readme}")
 			inside_block = False
 			continue
 		if not inside_block:
 			kept_lines.append(line)
+	if inside_block:
+		raise ValueError(f"shared task docs markers are incomplete: {readme}")
 	while kept_lines and not kept_lines[-1]:
 		kept_lines.pop()
 
 	shared_content = TASK_DOCS_README_SOURCE.read_text(encoding="utf-8").rstrip("\r\n")
 	updated = "\n".join(kept_lines)
 	updated += f"\n\n{START_MARKER}\n\n{shared_content}\n{END_MARKER}\n"
+	return updated
+
+
+def sync_task_docs_readme(target_dir: Path, updated: str) -> None:
+	"""Write the validated documentation index without changing local content."""
+	readme = target_dir / "docs" / "README.md"
+	readme.parent.mkdir(parents=True, exist_ok=True)
 	temp_path: Path | None = None
 	try:
 		# Replace the index atomically after the complete managed section is ready.
@@ -114,7 +117,7 @@ def sync_task_docs_readme(target_dir: Path) -> None:
 			temp_path.unlink()
 
 
-def process_target(relative_target: str, framework_name: str) -> None:
+def process_target(relative_target: str, framework_name: str, check: bool = False) -> None:
 	"""Publish the shared rule files and documentation for one target."""
 	target_dir = WORKSPACE_PROJECTS_ROOT / relative_target
 	framework_file = SOURCE_ROOT / "shared" / "frameworks" / f"{framework_name}.md"
@@ -124,9 +127,36 @@ def process_target(relative_target: str, framework_name: str) -> None:
 	if not framework_file.is_file():
 		# Report framework names that have no canonical source file.
 		raise FileNotFoundError(f"framework is missing: {framework_name}")
+	override = target_dir / "AGENTS.override.md"
+	if override.is_file() and override.read_text(encoding="utf-8").strip():
+		raise ValueError(f"{override} hides generated AGENTS.md; move its rules into "
+			".agent-rules/project.md and remove the override before sync")
 
 	rules_dir = target_dir / ".agent-rules"
 	scripts_dir = target_dir / "scripts"
+	if check:
+		pairs = (
+			(SOURCE_ROOT / "shared" / "base.md", rules_dir / "base.md"),
+			(framework_file, rules_dir / "framework.md"),
+			(AGENT_GENERATOR_SOURCE, scripts_dir / "gen-agent-rules.py"),
+			(SPECS_README_SOURCE, target_dir / "docs" / "specs" / "README.md"),
+		)
+		stale = [str(dest.relative_to(target_dir)) for source, dest in pairs
+			if not dest.is_file() or source.read_bytes() != dest.read_bytes()]
+		readme = target_dir / "docs" / "README.md"
+		content = readme.read_text(encoding="utf-8") if readme.is_file() else ""
+		shared = TASK_DOCS_README_SOURCE.read_text(encoding="utf-8").rstrip("\r\n")
+		block = f"{START_MARKER}\n\n{shared}\n{END_MARKER}"
+		if (block not in content or content.splitlines().count(START_MARKER) != 1
+			or content.splitlines().count(END_MARKER) != 1):
+			stale.append("docs/README.md (managed block)")
+		if stale:
+			raise ValueError(f"{relative_target}: missing or stale: {', '.join(stale)}; run sync.py")
+		subprocess.run([sys.executable, str(scripts_dir / "gen-agent-rules.py"), "--check"],
+			cwd=target_dir, check=True)
+		print(f"---> checked {relative_target}")
+		return
+	updated_readme = render_task_docs_readme(target_dir / "docs" / "README.md")
 	rules_dir.mkdir(parents=True, exist_ok=True)
 	scripts_dir.mkdir(parents=True, exist_ok=True)
 	(target_dir / "docs" / "specs").mkdir(parents=True, exist_ok=True)
@@ -136,7 +166,7 @@ def process_target(relative_target: str, framework_name: str) -> None:
 	generator = scripts_dir / "gen-agent-rules.py"
 	shutil.copyfile(AGENT_GENERATOR_SOURCE, generator)
 	generator.chmod(generator.stat().st_mode | 0o111)
-	sync_task_docs_readme(target_dir)
+	sync_task_docs_readme(target_dir, updated_readme)
 	shutil.copyfile(SPECS_README_SOURCE, target_dir / "docs" / "specs" / "README.md")
 	print(f"---> updated shared rules for {relative_target}")
 	# Regenerate the target's agent files after all source rules are current.
@@ -145,13 +175,16 @@ def process_target(relative_target: str, framework_name: str) -> None:
 
 def main() -> int:
 	"""Validate canonical inputs and publish them to every configured target."""
+	parser = argparse.ArgumentParser(description=__doc__)
+	parser.add_argument("--check", action="store_true", help="Check all targets without writing")
+	args = parser.parse_args()
 	validate_sources()
 	targets = read_targets()
 	failed = False
 	# Continue publishing other targets after reporting an individual failure.
 	for relative_target, framework_name in targets:
 		try:
-			process_target(relative_target, framework_name)
+			process_target(relative_target, framework_name, check=args.check)
 		except (OSError, ValueError, subprocess.CalledProcessError) as error:
 			print(f"---> {error}", file=sys.stderr)
 			failed = True
