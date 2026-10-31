@@ -1,6 +1,6 @@
 # Quy chuẩn viết spec
 
-Spec là contract của project; mỗi file có một phạm vi độc lập. Code, test và runbook phải implement và verify các yêu cầu `Approved`. Khi code và spec mâu thuẫn, spec thắng.
+Spec là contract của project; mỗi file có một scope contract độc lập, không phải một feature hay một task. Một spec có thể chứa nhiều feature liên quan. Code, test và runbook phải implement và verify các yêu cầu `Approved`. Khi code và spec mâu thuẫn, spec thắng.
 
 Spec có ba lớp để người đọc đi từ overview đến implementation detail:
 
@@ -8,7 +8,15 @@ Spec có ba lớp để người đọc đi từ overview đến implementation 
 2. **Feature list:** các outcome/capability trong scope, mỗi dòng có tên dễ quét và ID tới các yêu cầu chi tiết.
 3. **Chi tiết:** contract, design/implementation notes nếu cần, và cách kiểm chứng theo từng ID.
 
-**Cách dùng:** copy `Mẫu` bên dưới vào `specs/<scope-slug>.md` → điền theo `Cách điền` → thay nội dung minh họa theo task → chạy `Tự kiểm`. Người đọc phải hiểu mục tiêu và workflow trong 1 phút từ phần đầu file; đặt `Feature list` ngay sau `Workflow` để tra cứu nhanh.
+**Cách dùng:** copy `Mẫu` bên dưới vào `docs/specs/<domain>/<scope-slug>.md` → điền theo `Cách điền` → thay nội dung minh họa theo scope → chạy `Tự kiểm`. Đặt `Overview`, `Workflow` và `Feature list` trước phần chi tiết để người đọc nắm nhanh mục tiêu, luồng và các outcome của spec.
+
+## Chọn file spec
+
+- Spec là file theo **scope contract**, không phải file theo feature hoặc task. Một file chứa một outcome contract độc lập và có thể liệt kê nhiều feature liên quan trong `Feature list`.
+- Trước khi tạo file, tìm trong `catalog.md` và các spec hiện có. Nếu thay đổi thuộc cùng outcome/workflow hoặc phải giữ chung invariant/state, cập nhật spec hiện có; thêm hoặc sửa feature và requirement trong file đó.
+- Tạo spec riêng khi outcome có mục tiêu và acceptance criteria riêng, có thể được review, duyệt, implement và verify độc lập, đồng thời không cần thay đổi contract của spec khác.
+- Không tạo file mới chỉ vì task mới, feature mới, requirement mới, component khác hoặc implementation nằm ở PR khác. Nếu ranh giới contract không rõ và lựa chọn ảnh hưởng behavior hay acceptance criteria, hỏi task owner.
+- Domain folder chỉ giúp tìm file; hai spec trong cùng folder vẫn có thể có scope độc lập, và một spec không được chia chỉ để làm folder cân bằng.
 
 ## Mẫu
 
@@ -91,10 +99,12 @@ flowchart LR
 
 **Overview, `Scope`, `Workflow` và `Feature list`**
 - `Overview` nêu kết quả task mang lại trong một câu; không đưa chi tiết thiết kế vào đây.
-- `Scope` nêu ranh giới của spec, tối đa 2 câu.
+- `Scope` nêu ranh giới của spec, tối đa 2 câu. Scope là đơn vị contract được review/duyệt; nó có thể chứa nhiều feature cùng outcome, workflow hoặc lifecycle.
 - `Workflow` mô tả luồng người dùng hoặc hệ thống từ đầu đến cuối bằng tối đa 7 node. Node contract trỏ tới requirement ID được liệt kê trong `Feature list`; có thể thêm node không có ID cho bước ngoài contract. Nếu spec không có `behavior` hoặc `state`, ghi `N/A`.
 - `Feature list` là mục lục để quét nhanh theo outcome/capability, không phải danh sách từng điều kiện nhỏ. Một feature có thể gom nhiều requirement ID. Không chép câu contract đầy đủ vào bảng này. Sắp theo thứ tự trong `Workflow`; các feature khác xếp sau.
-- Đặt `Overview`, `Workflow`, rồi `Feature list` ở đầu file, trước `Scope` và detail. Giữ mục tiêu và workflow trong 15 dòng đầu; đặt `Feature list` ngay sau workflow, không giới hạn số dòng. Context bổ sung đặt sau phần này.
+- Đặt `Overview`, `Workflow`, rồi `Feature list` ở đầu file, trước `Scope` và detail. Đặt `Feature list` ngay sau workflow. Không áp giới hạn tổng số dòng cho spec; độ dài tùy theo contract cần mô tả.
+- Viết ngắn gọn và chỉ giữ nội dung cần để hiểu scope, quyết định contract, implement hoặc verify yêu cầu. Không lặp cùng thông tin ở `Overview`, `Workflow`, `Feature list`, contract và ghi chú; không thêm bối cảnh, diễn giải chung, lịch sử hoặc chi tiết implementation không ảnh hưởng tới quyết định hay kiểm chứng.
+- Không rút gọn bằng cách bỏ điều kiện, trường hợp lỗi, ranh giới, lý do quyết định hoặc acceptance detail cần thiết để implement và verify contract.
 
 **Chi tiết feature**
 - Mỗi feature có một tiêu đề `### <Tên feature>` và liệt kê các requirement ID thuộc feature đó. Mỗi requirement ID chỉ thuộc một feature.
@@ -108,7 +118,11 @@ flowchart LR
 - `Audited: <ngày> by <người duyệt>`. Chỉ người quyết định duyệt; AI không tự `Approved`. Hồ sơ duyệt là PR/commit.
 
 **Scope**
-- Tối đa 2 câu, nêu rõ phần thuộc và không thuộc scope. Hai nhóm yêu cầu đổi độc lập với nhau thì thuộc hai file.
+- Tối đa 2 câu, nêu rõ phần thuộc và không thuộc scope.
+- Một file tương ứng một scope contract, không phải một feature. Gộp nhiều feature vào cùng file khi chúng góp phần vào cùng outcome hoặc workflow, dùng chung state/invariant, hoặc cần được review và duyệt cùng nhau.
+- Tạo file mới chỉ khi outcome là contract riêng có thể review, duyệt, implement và verify độc lập mà không làm spec hiện có thiếu hoặc mâu thuẫn. Có thể thêm feature vào spec hiện có khi feature mới thuộc cùng scope, dù feature đó có requirement ID riêng.
+- Không tách file chỉ vì có nhiều feature, nhiều requirement, nhiều component bị ảnh hưởng hoặc implementation có thể làm ở nhiều PR. Không gộp hai outcome chỉ vì chúng thuộc cùng domain folder.
+- Domain folder chỉ là nhóm điều hướng; không quyết định số lượng spec hay ranh giới contract.
 
 **Workflow**
 - Bắt buộc với spec có yêu cầu `behavior` hoặc `state`.
@@ -172,10 +186,15 @@ flowchart LR
 - Dùng "phải / không được / chỉ". Không dùng "nên / thường / hợp lý / đúng / nhanh / cũ / mới", trừ khi nêu mốc hoặc ngưỡng.
 - Mỗi ô bảng một điều kiện hoặc một hành vi. Cấu trúc nhiều thành phần đặt ở khối chi tiết.
 - Giá trị, quyền, path phải có nguồn: file config cụ thể hoặc người quyết định. Không tự đoán.
-- Mỗi yêu cầu định nghĩa một nơi; chỗ khác trỏ tới ID. Yêu cầu ở file khác trỏ bằng `<ID> (<tên-file>.md)`, không chép lại; ID được trỏ tới phải tồn tại và `Approved`.
+- Mỗi yêu cầu định nghĩa một nơi; chỗ khác trỏ tới ID. Yêu cầu ở file khác trỏ bằng `<ID> (docs/specs/<domain>/<scope-slug>.md)`, không chép lại; ID được trỏ tới phải tồn tại và `Approved`.
 - Contract trên ranh giới giữa hai file (endpoint, payload, format, schema dùng chung) chỉ định nghĩa ở file của bên cung cấp. File của bên dùng chỉ trỏ tới ID.
-- Tên file `specs/<scope-slug>.md`, slug tiếng Anh theo phạm vi, khớp `^[a-z0-9]+(-[a-z0-9]+)*\.md$`. Không dùng ID, ngày, số thứ tự; không đặt tên `README`.
-- Prefix 3-4 chữ in hoa do người quyết định chọn, mặc định là chữ cái đầu của từng từ trong slug (`incremental-build` → `INC`). Không trùng với file khác; chỉ nằm trong nội dung file.
+- Đặt spec theo một cấp domain: `docs/specs/<domain>/<scope-slug>.md`. `<domain>` là subsystem sở hữu contract; `<scope-slug>` mô tả outcome/capability có thể review độc lập. Cả hai dùng tiếng Anh chữ thường, số và dấu gạch ngang; mỗi phần khớp `^[a-z0-9]+(-[a-z0-9]+)*$`. Không lồng domain nhiều cấp.
+- Folder domain dùng để tìm spec, không quyết định scope hoặc trạng thái duyệt. Một file có thể chứa nhiều feature cùng contract/lifecycle; tách file khi outcome có thể review và duyệt độc lập. Với spec ảnh hưởng nhiều domain, đặt file theo subsystem sở hữu contract và liên kết nó từ `docs/specs/catalog.md`; không nhân bản contract.
+- Spec là contract theo scope, không phải task log: không dùng ngày, ID hoặc số thứ tự trong tên file; không đặt tên file `README`. `docs/specs/README.md` chứa quy chuẩn dùng chung, không phải spec hay catalog của một project.
+- Catalog theo project nằm ở `docs/specs/catalog.md` để `sync.py` có thể cập nhật `README.md` mà không ghi đè danh mục riêng. Catalog liệt kê domain, mục đích của domain và link tới từng spec; `catalog.md` không phải contract spec.
+- Khi task tạo hoặc tổ chức spec, tạo `docs/specs/catalog.md` nếu chưa có; cập nhật catalog và mọi link tới file đã thêm, chuyển hoặc đổi tên. Dùng path từ repository root trong tham chiếu, ví dụ `docs/specs/terminal/split-panes.md`.
+- Trong lần đầu xử lý task có thao tác với spec sau khi nhận quy chuẩn này, nếu còn spec phẳng tại `docs/specs/*.md`, phân loại toàn bộ spec hiện có theo subsystem sở hữu contract rồi chuyển chúng vào `docs/specs/<domain>/` trước khi tạo hoặc sửa spec. Giữ nguyên contract, requirement ID, prefix và trạng thái; chỉ sửa path trong link/catalog. Với file có ngày hoặc tên không còn mô tả scope, đổi sang scope-slug ổn định và cập nhật mọi tham chiếu. Không đưa `README.md` hoặc `catalog.md` vào domain folder.
+- Prefix 3-4 chữ in hoa do người quyết định chọn, mặc định là ba chữ đầu của `<scope-slug>` sau khi bỏ dấu gạch ngang (`incremental-build` → `INC`). Prefix phải duy nhất trên toàn bộ spec; nếu trùng, người quyết định chọn prefix khác. Sau khi đã dùng trong ID, không đổi prefix.
 - ID: yêu cầu `INC-001`, check `INC-001-C1`. ID không đổi, không tái dùng, kể cả dòng `Removed`.
 
 ## Thay đổi và duyệt
@@ -191,8 +210,9 @@ flowchart LR
 
 Trước khi trả, kiểm và báo kết quả:
 - Đã thay nội dung minh họa bằng nội dung task; không còn ID, feature hoặc giá trị ví dụ.
-- Tên file khớp regex; prefix duy nhất: `grep -rlE '^\| <PREFIX>-' specs --exclude=README.md` chỉ trả về file đang viết (hoặc không trả gì nếu là file thêm).
-- Mục tiêu và workflow nằm trong 15 dòng đầu; `Feature list` đứng ngay sau workflow; `Scope` không quá 2 câu.
+- Path file khớp `docs/specs/<domain>/<scope-slug>.md`; không còn spec phẳng ở `docs/specs/*.md` ngoài `README.md` và `catalog.md`. Prefix duy nhất trên toàn bộ spec: `grep -rlE '^\| <PREFIX>-' docs/specs --include='*.md' --exclude=README.md --exclude=catalog.md` chỉ trả về file đang viết (hoặc không trả gì nếu là file thêm).
+- Mọi spec nằm trong đúng một folder domain; `docs/specs/catalog.md` liệt kê mọi domain và spec; mọi link trỏ tới path hiện có.
+- `Overview` và `Workflow` nằm trước `Feature list`; `Feature list` đứng ngay sau workflow; `Scope` không quá 2 câu.
 - `Workflow` không quá 7 node, mọi ID trỏ tới requirement tồn tại; mọi requirement `behavior`/`state` chưa `Removed` có mặt trong `Workflow`.
 - Mọi requirement ID trong `Feature list` tồn tại đúng một lần trong `Chi tiết feature`; mọi requirement detail được liệt kê trong đúng một feature. Thứ tự feature list và detail khớp nhau; xếp theo workflow trước, các feature ngoài workflow sau.
 - Mỗi phát biểu bắt buộc và mỗi giá trị `config` có check kèm kết quả mong đợi; yêu cầu có thẻ có đủ check của thẻ.

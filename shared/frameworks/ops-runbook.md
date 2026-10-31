@@ -2,6 +2,7 @@
 
 - Nêu rõ environment, host, service và working directory.
 - Dùng command, path, giá trị và kết quả mong đợi chính xác.
+- Đặt phần mô tả hoặc bối cảnh không yêu cầu hành động trong blockquote để phân biệt với các bước người đọc phải làm.
 - Khai báo variable trước khi sử dụng.
 - Đặt các thao tác theo thứ tự trong cùng một mục procedure.
 - Đặt verification làm bước cuối của procedure.

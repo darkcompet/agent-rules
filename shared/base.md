@@ -53,9 +53,12 @@ refactor thuần túy không đổi behavior và test cho behavior hiện có.
 Với thay đổi không thuộc ngoại lệ:
 
 1. Đọc `docs/specs/README.md`, `docs/README.md` và các spec liên quan đến thay
-   đổi. Cập nhật feature hiện có khi cùng outcome/capability; tạo spec mới nếu
-   task có scope độc lập. Dùng `Feature list` và requirement detail theo format
-   trong `docs/specs/README.md`; ghi thay đổi contract đã duyệt vào
+   đổi. Spec là một scope contract, không phải một feature hay task; một spec có
+   thể chứa nhiều feature liên quan. Cập nhật feature hiện có hoặc thêm feature
+   trong spec hiện tại khi cùng outcome/workflow/lifecycle và cần review/duyệt
+   cùng nhau. Chỉ tạo spec mới cho outcome có contract riêng, có thể review,
+   duyệt, implement và verify độc lập. Dùng `Feature list` và requirement detail
+   theo format trong `docs/specs/README.md`; ghi thay đổi contract đã duyệt vào
    `Proposed changes`.
 2. Spec phải mô tả outcome, scope, workflow khi áp dụng, requirements,
    acceptance criteria và cách kiểm chứng. Thêm design/implementation,
@@ -70,12 +73,42 @@ Với thay đổi không thuộc ngoại lệ:
 7. Nếu không có người duyệt (chạy non-interactive), ghi spec `Draft`, không triển
    khai và báo lại.
 
+## Không dùng workaround để sửa issue
+
+- Trước khi viết code để sửa issue, đọc lại approved spec và architecture liên
+  quan, rồi truy nguyên root cause. Xác định lỗi nằm ở implementation hay
+  contract/spec.
+- Bắt buộc sửa đúng root cause tại source of truth và boundary sở hữu behavior,
+  conform với approved spec. Không viết workaround để che symptom, né contract,
+  ép test pass hoặc trì hoãn việc tìm cách sửa đúng.
+- Không thêm special case, fallback, silent conversion, duplicate code path hoặc
+  error suppression chỉ để làm issue biến mất khi chưa chứng minh đó là behavior
+  được spec yêu cầu.
+- Nếu spec chưa quy định cách sửa đúng, mâu thuẫn với requirement khác hoặc cần
+  đổi behavior, dừng phần code bị ảnh hưởng; ghi đề xuất trong spec ở trạng thái
+  `Draft` và chờ task owner duyệt. Không thêm workaround tạm trong lúc chờ.
+- Nếu chưa xác định được root cause hoặc cách sửa đúng, tiếp tục điều tra; nếu
+  vẫn chưa đủ căn cứ, dừng phần code bị ảnh hưởng và báo evidence cùng thông tin
+  còn thiếu thay vì đoán hoặc vá tạm.
+
 ## Giới hạn phạm vi thay đổi
 
 - Giữ nguyên pattern, workflow và formatting hiện có.
 - Không thêm feature, abstraction, config hoặc dependency mang tính suy đoán.
 - Không refactor, đổi tên, format hoặc cleanup phần không liên quan.
 - Chỉ xóa code không còn dùng do chính thay đổi này tạo ra.
+
+## Boundary và architecture
+
+- Tuân theo architecture đã được tài liệu hóa và boundary hiện có của repository; không tự áp đặt một pattern khác. Trước khi thêm code, xác định module, feature hoặc layer nào sở hữu behavior đó.
+- Giữ file, class/type và function tập trung vào một trách nhiệm rõ ràng. Đặt business rule ở owner của nó, orchestration ở workflow/use case, và I/O hoặc tương tác hệ thống bên ngoài tại boundary phù hợp với architecture hiện có.
+- Giữ dependency theo hướng mà architecture quy định. Không bypass module/layer boundary, tạo dependency cycle hoặc gọi implementation nội bộ của module khác khi đã có contract/port công khai.
+- Ưu tiên giữ file mã nguồn do người viết duy trì ở khoảng 300 dòng. File dài
+  hơn vẫn phù hợp khi có lý do rõ ràng và nội dung cohesive, như một bảng
+  constants lớn cho cùng một target. Chỉ tách file khi việc đó tạo boundary
+  trách nhiệm tốt hơn; không chia máy móc theo số dòng hoặc refactor file legacy
+  không liên quan chỉ để đạt ngưỡng.
+- Giữ function tập trung vào một operation có ý nghĩa. Tách bước riêng thành helper khi nó có trách nhiệm hoặc rule riêng, không chỉ để giảm số dòng.
 
 ## Đặt tên và comment
 
