@@ -1,6 +1,6 @@
 # Agent rules
 
-This repository contains shared agent rules and `sync.py` for publishing them to the targets listed in `targets.tsv`. Keep it beside the target projects.
+This repository contains shared agent rules and `sync.py` for publishing them to the targets listed in `local/targets.tsv`. Keep it beside the target projects.
 
 ## Sync shared rules
 

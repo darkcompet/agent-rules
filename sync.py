@@ -20,7 +20,7 @@ else:
 	# Support workspaces that contain project repositories in a projects folder.
 	DEFAULT_PROJECTS_ROOT = WORKSPACE_ROOT / "projects"
 WORKSPACE_PROJECTS_ROOT = Path(os.environ.get("WORKSPACE_PROJECTS_ROOT", DEFAULT_PROJECTS_ROOT))
-TARGETS_FILE = SOURCE_ROOT / "targets.tsv"
+TARGETS_FILE = SOURCE_ROOT / "local" / "targets.tsv"
 TASK_DOCS_README_SOURCE = SOURCE_ROOT / "templates" / "task-docs-readme.md"
 AGENT_GENERATOR_SOURCE = SOURCE_ROOT / "templates" / "gen-agent-rules.py"
 SPECS_README_SOURCE = SOURCE_ROOT / "shared" / "specs" / "README.md"
@@ -31,7 +31,7 @@ END_MARKER = "<!-- END SHARED TASK DOC RULES -->"
 def validate_sources() -> None:
 	"""Check the canonical inputs before modifying any targets."""
 	sources = (
-		(SOURCE_ROOT / "shared" / "base.md", "shared rules or targets.tsv are missing"),
+		(SOURCE_ROOT / "shared" / "base.md", "shared rules or local/targets.tsv are missing"),
 		(TARGETS_FILE, "source rules or targets.tsv are missing"),
 		(TASK_DOCS_README_SOURCE, "task docs README source is missing"),
 		(AGENT_GENERATOR_SOURCE, "agent generator template is missing"),
