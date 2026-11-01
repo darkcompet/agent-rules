@@ -1,17 +1,29 @@
 # Quy chuẩn viết spec
 
-Spec là contract của project; mỗi file có một scope contract độc lập, không phải một feature hay một task. Một spec có thể chứa nhiều feature liên quan. Code, test và runbook phải implement và verify các yêu cầu `Approved`. Khi code và spec mâu thuẫn, spec thắng.
+Spec là contract của project; mỗi file có một scope contract độc lập, không phải
+một feature hay một task. Một spec có thể chứa nhiều feature liên quan. Code,
+test và runbook phải implement và verify các yêu cầu `Approved`, vì chúng là
+behavior đã được owner duyệt. Khi code và spec mâu thuẫn, spec thắng; implementation
+không tự thay đổi contract.
 
-`Features` là nơi duy nhất định nghĩa feature. Mỗi feature có ID, trạng thái, các bước ngắn bằng ngôn ngữ nghiệp vụ, chi tiết cần thiết và cách kiểm chứng. Không tạo thêm phần `Chi tiết feature` để chép lại nội dung.
+`Features` là nơi duy nhất định nghĩa feature để tránh các bản contract mâu thuẫn.
+Mỗi feature có ID, trạng thái, các bước ngắn bằng ngôn ngữ nghiệp vụ, chi tiết cần
+thiết và cách kiểm chứng. Không tạo thêm phần `Chi tiết feature` để chép lại nội dung.
 
-Người đọc phải nắm được mục tiêu và các luồng chính trong 30 giây bằng cách đọc `Overview` và tiêu đề/các bước đầu của từng feature. Phần còn lại trong feature giữ đầy đủ contract để implement và review.
+Người đọc phải nắm được mục tiêu và các luồng chính trong 30 giây bằng cách đọc
+`Overview` và tiêu đề/các bước đầu của từng feature. Phần còn lại trong feature
+giữ đầy đủ contract để implement và review; cách chia này giúp định hướng nhanh
+mà không lược bỏ điều kiện cần để thực hiện đúng.
 
 **Cách dùng:** copy `Mẫu` bên dưới vào `docs/specs/<domain>/<scope-slug>.md` → điền theo `Cách điền` → thay nội dung minh họa theo scope → chạy `Tự kiểm`.
 
 ## Chọn file spec
 
 - Spec là file theo **scope contract**, không phải file theo feature hoặc task. Một file chứa một outcome contract độc lập và có thể định nghĩa nhiều feature liên quan trong `Features`.
-- Trước khi tạo file, tìm trong `catalog.md` và các spec hiện có. Nếu thay đổi thuộc cùng outcome/workflow hoặc phải giữ chung invariant/state, cập nhật spec hiện có; thêm hoặc sửa feature và requirement trong file đó.
+- Trước khi tạo file, tìm trong `catalog.md` và các spec hiện có. Nếu thay đổi
+  thuộc cùng outcome/workflow hoặc phải giữ chung invariant/state, cập nhật spec
+  hiện có; thêm hoặc sửa feature và requirement trong file đó. Tái sử dụng đúng
+  scope giúp giữ một nguồn contract và tránh yêu cầu trùng hoặc mâu thuẫn.
 - Tạo spec riêng khi outcome có mục tiêu và acceptance criteria riêng, có thể được review, duyệt, implement và verify độc lập, đồng thời không cần thay đổi contract của spec khác.
 - Không tạo file mới chỉ vì task mới, feature mới, requirement mới, component khác hoặc implementation nằm ở PR khác. Nếu ranh giới contract không rõ và lựa chọn ảnh hưởng behavior hay acceptance criteria, hỏi task owner.
 - Domain folder chỉ giúp tìm file; hai spec trong cùng folder vẫn có thể có scope độc lập, và một spec không được chia chỉ để làm folder cân bằng.
@@ -87,8 +99,17 @@ Status: Draft · Audited: Not yet
 - Có thể thêm `Design / implementation`, `Delivery / rollout`, `Dependencies / risks` trong feature khi cần. Đây là detail hỗ trợ review, không ghi đè contract.
 
 **Tiêu đề, `Status`, `Audited`**
-- `Status: Approved` khi mọi feature chưa `Removed` đều có contract `Approved`, không còn dòng trong `Proposed changes`, không còn `[Gating]`; trường hợp khác là `Draft`.
-- `Audited: <ngày> by <người duyệt>`. Chỉ task owner quyết định duyệt. Approval phải xác định proposal/requirement và nội dung được duyệt trong hội thoại hoặc PR/commit; yêu cầu chung khi chưa có proposal cụ thể không tự là approval. AI được ghi lại quyết định đã có và cập nhật trạng thái, không tự duyệt hoặc hỏi lại approval khi scope không đổi. Ghi nguồn xác nhận và người duyệt trong hồ sơ task hoặc PR/commit khi có; không tự tạo commit/PR để ghi approval.
+- `Status: Approved` khi mọi feature chưa `Removed` đều có contract `Approved`,
+  không còn dòng trong `Proposed changes`, không còn `[Gating]`; trường hợp khác
+  là `Draft`. Status của file phản ánh toàn bộ scope, không xóa hiệu lực của
+  feature đã `Approved` riêng lẻ.
+- `Audited: <ngày> by <người duyệt>`. Chỉ task owner quyết định duyệt để người
+  sở hữu contract kiểm soát thay đổi. Approval phải xác định proposal/requirement
+  và nội dung được duyệt trong hội thoại hoặc PR/commit; yêu cầu chung khi chưa có
+  proposal cụ thể không tự là approval. AI được ghi lại quyết định đã có và cập
+  nhật trạng thái, không tự duyệt hoặc hỏi lại khi scope không đổi. Ghi nguồn xác
+  nhận và người duyệt trong hồ sơ task hoặc PR/commit khi có; không tự tạo
+  commit/PR để ghi approval.
 
 **Scope**
 - Tối đa 2 câu, nêu rõ phần thuộc và không thuộc scope.
@@ -130,8 +151,11 @@ Status: Draft · Audited: Not yet
 - Đặt `Kiểm chứng` ngay trong feature; không tạo bảng Check toàn cục.
 - Mỗi dòng xác nhận một tình huống độc lập theo dạng: `<Check ID>: <Tình huống> → <Kết quả quan sát được>. Verified: <trạng thái>`.
 - Check ID dạng `<Requirement ID>-C1`, tăng số theo từng tình huống; không tái sử dụng.
-- Mỗi phát biểu bắt buộc phải có check. `behavior` cần check cho đường thành công và lỗi; `config` cần check nhắc tới ID.
-- Check xác nhận kết quả, không chỉ việc chạy command hoặc sự tồn tại của file. Tách check nếu chúng có thể fail vì nguyên nhân độc lập.
+- Mỗi phát biểu bắt buộc phải có check để reviewer biết cách xác nhận contract.
+  `behavior` cần check cho đường thành công và lỗi; `config` cần check nhắc tới ID.
+- Check xác nhận kết quả, không chỉ việc chạy command hoặc sự tồn tại của file.
+  Tách check nếu chúng có thể fail vì nguyên nhân độc lập để failure chỉ rõ phần
+  contract nào chưa đạt.
 - Check chỉ kiểm bằng mắt (chỉ dùng cho `ui`) nêu tình huống và kết quả người xem phải xác nhận.
 - `Verified`: `-` (chưa chạy) · `<ngày> · <commit>` (check lệnh đã pass) · `<ngày> · <người xem>` (check `manual`) · `Removed`.
 
@@ -153,7 +177,9 @@ Status: Draft · Audited: Not yet
 - Dùng "phải / không được / chỉ". Không dùng "nên / thường / hợp lý / đúng / nhanh / cũ / mới", trừ khi nêu mốc hoặc ngưỡng.
 - Mỗi ô bảng một điều kiện hoặc một hành vi. Cấu trúc nhiều thành phần đặt ở khối chi tiết.
 - Giá trị, quyền, path phải có nguồn: file config cụ thể hoặc người quyết định. Không tự đoán.
-- Mỗi yêu cầu định nghĩa một nơi; chỗ khác trỏ tới ID. Yêu cầu ở file khác trỏ bằng `<ID> (docs/specs/<domain>/<scope-slug>.md)`, không chép lại; ID được trỏ tới phải tồn tại và `Approved`.
+- Mỗi yêu cầu định nghĩa một nơi; chỗ khác trỏ tới ID để tránh drift giữa các
+  bản sao. Yêu cầu ở file khác trỏ bằng `<ID> (docs/specs/<domain>/<scope-slug>.md)`,
+  không chép lại; ID được trỏ tới phải tồn tại và `Approved`.
 - Contract trên ranh giới giữa hai file (endpoint, payload, format, schema dùng chung) chỉ định nghĩa ở file của bên cung cấp. File của bên dùng chỉ trỏ tới ID.
 - Đặt spec theo một cấp domain: `docs/specs/<domain>/<scope-slug>.md`. `<domain>` là subsystem sở hữu contract; `<scope-slug>` mô tả outcome/capability có thể review độc lập. Cả hai dùng tiếng Anh chữ thường, số và dấu gạch ngang; mỗi phần khớp `^[a-z0-9]+(-[a-z0-9]+)*$`. Không lồng domain nhiều cấp.
 - Folder domain dùng để tìm spec, không quyết định scope hoặc trạng thái duyệt. Một file có thể chứa nhiều feature cùng contract/lifecycle; tách file khi outcome có thể review và duyệt độc lập. Với spec ảnh hưởng nhiều domain, đặt file theo subsystem sở hữu contract và liên kết nó từ `docs/specs/catalog.md`; không nhân bản contract.

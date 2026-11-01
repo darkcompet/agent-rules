@@ -70,6 +70,12 @@ Choose a framework name that matches a file under `shared/frameworks/` (omit `.m
 | `react` | `shared/frameworks/react.md` |
 | `worker` | `shared/frameworks/worker.md` |
 
+Use `.|common` as a target row when you want the three generated entrypoints in
+the configured projects root itself. This special target writes only
+`AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` there; it does not install project-level
+support files in the root. The selected framework value controls the framework
+rules included in those entrypoints.
+
 > `local/targets.tsv` is intentionally git-ignored because it contains your personal project list and is not included when you clone this repository.
 
 Keep the file on your machine.
