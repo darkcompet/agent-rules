@@ -43,6 +43,22 @@ gate; owner phải chỉ rõ ngoại lệ và phạm vi.
   `AGENTS.md` cùng thư mục, nên nội dung generated sẽ không được nạp. Dùng
   `.agent-rules/project.md` và generator.
 
+## Git branch, commit và push
+
+- Khi task owner yêu cầu commit và push, phải commit trên branch `develop` và
+  push lên remote branch `develop`. Không tạo hoặc chuyển sang branch task/feature
+  mới. Nếu branch `develop` không có sẵn hoặc không thể dùng an toàn, dừng thao
+  tác commit/push và báo task owner; không tự tạo branch thay thế.
+- Trước khi commit, pull branch `develop` từ remote đích để cập nhật source mới
+  nhất. Chỉ fast-forward; không tự tạo merge commit hoặc rewrite history. Nếu pull
+  bị conflict, không thể fast-forward hoặc không an toàn với thay đổi hiện có,
+  dừng và báo task owner trước khi commit.
+- Trước khi commit, kiểm tra `git status` và diff để chỉ commit thay đổi thuộc
+  task được yêu cầu. Giữ nguyên thay đổi sẵn có của task owner hoặc người khác;
+  không stage hoặc commit chúng nếu không thuộc phạm vi được yêu cầu.
+- Chỉ thực hiện commit và push khi task owner đã yêu cầu rõ; quy tắc chọn branch
+  này không tự cấp quyền commit hoặc push.
+
 ## Trước khi sửa
 
 - Đọc rule áp dụng và tập file nhỏ nhất đủ hiểu thay đổi để tránh suy luận từ
@@ -74,7 +90,17 @@ contract; formatting/refactor không đổi behavior; test cho behavior hiện c
 ## Sửa issue
 
 - Trước khi sửa, đọc approved spec và architecture liên quan rồi truy nguyên root
-  cause; xác định lỗi ở implementation hay contract/spec để sửa đúng nơi sở hữu.
+  cause đến điều kiện và cơ chế cụ thể gây lỗi; xác định lỗi ở implementation hay
+  contract/spec để sửa đúng nơi sở hữu. Đối chiếu symptom với đường thực thi và
+  evidence trong code, test, log hoặc output tái hiện; không dừng ở mô tả symptom,
+  tương quan hoặc nguyên nhân nghe có vẻ hợp lý.
+- Chỉ trình bày nguyên nhân là đã xác nhận khi evidence cho thấy được vì sao lỗi
+  xảy ra. Nêu evidence cụ thể hỗ trợ kết luận (path/function, test, log hoặc kết
+  quả command phù hợp). Không dùng phỏng đoán như “maybe the bug is...” thay cho
+  kết luận hoặc điều tra. Nếu còn nhiều khả năng, kiểm tra chúng bằng evidence
+  phân biệt được; nếu không thể xác nhận sau khi đã kiểm tra, nói rõ chưa xác
+  định được root cause, đã kiểm tra gì, evidence hiện có và phần chưa rõ. Không
+  khẳng định đã tìm ra hoặc sửa nguyên nhân khi chưa có căn cứ.
 - Sửa root cause tại source of truth và boundary sở hữu, conform approved spec.
   Không workaround để che symptom, né contract, ép test pass hoặc trì hoãn sửa đúng,
   vì workaround giữ nguyên nguyên nhân và dễ tái tạo lỗi.
@@ -85,7 +111,8 @@ contract; formatting/refactor không đổi behavior; test cho behavior hiện c
   constraint đã duyệt. Thiếu chi tiết implementation không cần approval mới.
 - Nếu behavior mong đợi thiếu, mâu thuẫn hoặc cần đổi, áp dụng approval gate ở
   trên; không thêm workaround tạm. Nếu chưa rõ root cause, tiếp tục điều tra;
-  khi không thể lấy thêm evidence, dừng sửa code và báo điều chưa rõ.
+  khi không thể lấy thêm evidence, dừng sửa code và báo điều chưa rõ theo yêu cầu
+  evidence ở trên.
 
 ## Phạm vi và style của target project
 
