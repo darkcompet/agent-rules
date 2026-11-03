@@ -166,6 +166,13 @@ contract; formatting/refactor không đổi behavior; test cho behavior hiện c
   Ngôn ngữ của spec theo `docs/specs/README.md`. Dùng formatter/linter của repo
   cho line length, braces và layout; không tự đếm.
 
+## Runbooks
+
+- Mỗi chỉ dẫn phải ngắn, dễ đọc lướt và nêu một hành động. Đặt giải thích,
+  bối cảnh và kết quả mong đợi không yêu cầu hành động trong blockquote.
+- Trước khi dùng placeholder, phải nêu ngắn cách lấy hoặc chọn giá trị, hoặc
+  khai báo thành variable. Không để placeholder không rõ nguồn.
+
 ## Input và configuration
 
 ### Hardcoding — bắt buộc

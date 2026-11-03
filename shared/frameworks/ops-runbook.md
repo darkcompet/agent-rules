@@ -1,18 +1,25 @@
 ## Quy tắc operations runbook
 
-- Trước khi thêm hoặc sửa procedure, đọc runbook cùng loại và deployment config
-  liên quan. Chúng xác định environment, host, directory và thứ tự thao tác thực
-  tế; giả định sai có thể khiến người vận hành chạy lệnh sai nơi hoặc sai thứ tự.
-- Nêu rõ environment, host, service và working directory để người vận hành biết
-  chính xác nơi chạy procedure.
-- Dùng command, path, giá trị và kết quả mong đợi chính xác để các bước có thể
-  thực hiện và kiểm tra mà không phải tự đoán.
-- Đặt phần mô tả hoặc bối cảnh không yêu cầu hành động trong blockquote để phân
-  biệt với các bước người đọc phải làm.
-- Khai báo variable trước khi sử dụng để mỗi lệnh có đủ input.
-- Đặt các thao tác theo thứ tự trong cùng một mục procedure vì bước sau có thể
-  phụ thuộc kết quả bước trước.
-- Đặt verification làm bước cuối để xác nhận procedure đã đạt kết quả mong đợi.
-- Không đưa giá trị secret vào tài liệu để tránh lộ thông tin xác thực.
-- Giữ nguyên các environment được hỗ trợ và các nhánh vận hành để không làm mất
-  đường triển khai đang được sử dụng.
+- Trước khi viết hoặc sửa procedure, đọc runbook hiện hành, operational spec đã
+  được phê duyệt và deployment config liên quan. Runbook quy định workflow;
+  spec xác định ý định đã duyệt; config cung cấp chi tiết triển khai. Nếu các
+  nguồn mâu thuẫn và không xác định được procedure đúng, dừng thay đổi trên host
+  và hỏi owner.
+- Mỗi procedure phải nêu environment, host, service, working directory, điều
+  kiện tiên quyết, entrypoint, command/path theo đúng thứ tự, kết quả mong đợi
+  và bước verification cuối cùng. Ghi rõ cách cung cấp variable; tham chiếu
+  secret qua secret manager hoặc cơ chế bảo mật tương ứng, không ghi giá trị
+  secret.
+- Khi setup, reconcile, deploy, recovery hoặc vận hành service, mọi người và AI
+  phải chạy đúng entrypoint và thứ tự bước của runbook cho environment/host đã
+  chọn. Không tự ghép lệnh/script để thay procedure, bỏ qua bước hoặc né
+  entrypoint đã định nghĩa.
+- Nếu một bước thất bại, dừng mọi thao tác làm thay đổi trạng thái trên host hoặc
+  environment; chỉ thực hiện điều tra read-only tại đó. Có thể sửa source/config
+  của implementation mà procedure sử dụng ở ngoài host, rồi chạy lại theo đúng
+  retry/resume procedure trong runbook. Không dùng lệnh/script workaround tự tạo.
+  Nếu runbook không quy định cách retry/resume, không tự chọn bước để chạy tiếp.
+- Nếu procedure thiếu, sai hoặc entrypoint không còn hợp lệ, không tự tạo cách
+  vận hành thay thế. Chỉ cập nhật runbook khi procedure đúng xác định được từ ý
+  định đã duyệt và deployment config; sau đó tiếp tục bằng entrypoint trong
+  runbook đã cập nhật. Nếu chưa xác định được, dừng và hỏi owner.
