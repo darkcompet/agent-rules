@@ -83,8 +83,11 @@ Status: Draft · Audited: Not yet
 - `Overview` nêu kết quả chung mà spec định nghĩa, trong một câu; không đưa chi tiết thiết kế vào đây.
 - `Scope` nêu ranh giới của spec, tối đa 2 câu. Scope là đơn vị contract được review/duyệt; một scope có thể chứa nhiều feature cùng outcome, workflow hoặc lifecycle.
 - `Features` là nơi duy nhất định nghĩa feature, không phải bảng mục lục. Mỗi feature có đúng một requirement ID; đặt ID đầu heading theo dạng `### <ID>. <Tên outcome>`.
-- Đặt theo thứ tự `Overview` → `Scope` → `Features`. Không bắt buộc có Workflow hoặc sơ đồ tổng quan.
-- Có thể thêm sơ đồ khi nhiều feature cùng tạo thành một luồng và sơ đồ giúp thấy mối liên hệ. Sơ đồ chỉ dẫn tới ID; không lặp hoặc thay thế contract trong feature.
+- Giữ `Overview` và `Scope` riêng, theo thứ tự `Overview` → `Scope` → `Features`. `Overview` tóm tắt outcome; `Scope` xác định ranh giới contract.
+- Khi spec mô tả dataflow hoặc workflow qua ít nhất hai service/system hoặc qua nhiều trust boundary, `Overview` phải có Mermaid diagram tổng quan. Diagram phải thể hiện các actor/service tham gia, hướng luồng data/control và ID của các feature liên quan. Ghi rõ trust boundary, secret/plaintext/ciphertext hoặc dữ liệu chỉ tồn tại trong memory khi các phân biệt đó cần để hiểu luồng.
+- Diagram tổng quan phải bao quát các feature cùng tham gia luồng xuyên boundary; không ép feature độc lập như `nfr`, `deliverable` hoặc `config` vào runtime flow. Dùng `flowchart` cho dataflow/quan hệ hệ thống; dùng `sequenceDiagram` trong feature liên quan khi thứ tự tương tác giữa service cần làm rõ.
+- Sơ đồ chỉ giúp người đọc hiểu quan hệ và trỏ tới feature ID; mọi requirement vẫn phải được định nghĩa trong `Features`. Không thêm contract chỉ có trong sơ đồ, không chép lại toàn bộ bước/điều kiện từ feature vào sơ đồ, và giữ sơ đồ đồng bộ với các feature được tham chiếu.
+- Không cần sơ đồ cho spec không có luồng xuyên service/boundary hoặc khi sơ đồ không làm rõ thêm quan hệ giữa các feature.
 - Viết ngắn gọn nhưng đầy đủ điều kiện, trường hợp lỗi, ranh giới và acceptance detail cần thiết để implement/verify. Không lặp contract giữa Overview, sơ đồ, feature hoặc ghi chú.
 
 **Feature và các bước**

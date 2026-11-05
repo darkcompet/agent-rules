@@ -10,6 +10,9 @@
   ràng; xử lý timeout, lỗi và cleanup để lỗi I/O không rò rỉ tài nguyên.
 - Giữ cấu hình, dữ liệu runtime, log và artifact build ở đúng vị trí của ứng
   dụng; không ghi secret hoặc dữ liệu nhạy cảm vào log để tránh lộ dữ liệu.
+- Sau khi implement hoặc fix, rà authorization tại boundary, input không tin cậy,
+  thao tác file/process/network và dữ liệu nhạy cảm trong output/log. Giới hạn
+  side effect theo quyền và đường dẫn đã được ứng dụng cho phép.
 - Không sửa generated output hoặc file đóng gói thủ công nếu repository có
   source/config làm chuẩn; lần generate tiếp theo sẽ ghi đè thay đổi đó.
 - Chạy formatter, linter, type check hoặc test hẹp nhất đã được cấu hình để xác

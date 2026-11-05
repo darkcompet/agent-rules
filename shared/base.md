@@ -144,6 +144,19 @@ contract; formatting/refactor không đổi behavior; test cho behavior hiện c
   hữu behavior. Không áp pattern khác, bypass boundary, tạo dependency cycle hoặc
   gọi implementation nội bộ module khác khi đã có public contract/port, để giữ
   dependency và ownership tường minh.
+- Mặc định xem mỗi database table trong target project có thể chứa ít nhất 100
+  triệu records. Application và database chạy trên các server riêng; mỗi server
+  chạy một workload và có ngân sách 2 vCPU, 4 GB RAM độc lập. Không xem đây là
+  ngân sách gộp cho hai server hoặc giả định chúng dùng chung server. Xem các con
+  số này là giới hạn tài nguyên để cân nhắc thiết kế, không phải SLA về latency
+  hay throughput. Khi đề xuất hoặc triển khai feature có
+  đọc/ghi dữ liệu, cân nhắc quy mô này trong query, pagination, memory,
+  concurrency, index, batch processing và migration/backfill khi có liên quan.
+  Tránh giải pháp cần load, scan hoặc xử lý toàn bộ records trong một request/job
+  nếu không có cơ chế giới hạn và lý do phù hợp. Dựa vào schema, query pattern và
+  constraint hiện có; không tự thêm index, config hoặc data change ngoài scope.
+  Nếu cần chọn trade-off mà chưa rõ workload hay performance requirement, nêu
+  giả định hoặc hỏi owner khi câu trả lời có thể đổi behavior hoặc thiết kế.
 - Giữ mỗi file, type và function tập trung vào trách nhiệm rõ ràng. Business rule
   ở owner; orchestration ở workflow/use case; I/O ở boundary phù hợp.
 - Xem khoảng 300 dòng là tín hiệu để rà cohesion, không phải giới hạn bắt buộc;
@@ -166,12 +179,16 @@ contract; formatting/refactor không đổi behavior; test cho behavior hiện c
   Ngôn ngữ của spec theo `docs/specs/README.md`. Dùng formatter/linter của repo
   cho line length, braces và layout; không tự đếm.
 
-## Runbooks
+## Rà soát security và privacy
 
-- Mỗi chỉ dẫn phải ngắn, dễ đọc lướt và nêu một hành động. Đặt giải thích,
-  bối cảnh và kết quả mong đợi không yêu cầu hành động trong blockquote.
-- Trước khi dùng placeholder, phải nêu ngắn cách lấy hoặc chọn giá trị, hoặc
-  khai báo thành variable. Không để placeholder không rõ nguồn.
+- Sau khi implement hoặc fix, rà phần thay đổi và boundary liên quan về quyền
+  truy cập, input không tin cậy, dữ liệu nhạy cảm, secret, log và side effect.
+  Chỉ áp dụng các mục liên quan; dựa vào code, config, test hoặc output để xác
+  nhận, rồi báo rõ điều chưa kiểm chứng và risk còn lại.
+- Không làm lộ secret hoặc dữ liệu cá nhân trong source, output, log, artifact hay
+  tài liệu; chỉ cấp quyền cần thiết và giữ kiểm tra bảo mật tại boundary tin cậy.
+  Tuân theo contract và cơ chế bảo vệ hiện có; không tự đổi policy hoặc hạ mức
+  bảo vệ để làm workflow chạy qua.
 
 ## Input và configuration
 

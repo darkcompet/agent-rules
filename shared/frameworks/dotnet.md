@@ -10,6 +10,9 @@
 - Gọi qua public contract/port tại boundary của module hoặc feature sở hữu. Không
   gọi trực tiếp Infrastructure hay orchestration nội bộ module khác để giảm
   coupling và giữ quyền sở hữu rõ ràng.
+- Sau khi implement hoặc fix, rà authorization tại server-side boundary, validate
+  dữ liệu không tin cậy, và bảo đảm query/response/error/log không làm lộ dữ liệu
+  nhạy cảm. Không xem kiểm tra phía client là kiểm soát quyền truy cập.
 - Dùng async API; truyền tiếp cancellation token hiện có để request bị hủy không
   tiếp tục giữ tài nguyên hoặc tạo side effect ngoài ý muốn.
 - Tạo migration bằng script của repository; không sửa thủ công generated output,
